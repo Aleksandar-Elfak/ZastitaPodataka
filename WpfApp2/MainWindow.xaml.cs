@@ -183,8 +183,7 @@ namespace WpfApp2
             keys.Add(RingSettings.Text);
             keys.Add(Wplug);
             keys.Add(KeySettings.Text);
-            if(CRCbox.IsChecked == true)
-                keys.Add(CRC.Hash(toUpper(Plaintext.Text)));
+            keys.Add(CRC.Hash(toUpper(Plaintext.Text)));
 
             Directory.CreateDirectory(DestinationFolder);
             Directory.CreateDirectory(KeysLocation2);
@@ -311,8 +310,7 @@ namespace WpfApp2
             keys.Add(Wring);
             keys.Add(Wplug);
             keys.Add(Wkey);
-            if (crcCheck)
-                keys.Add(CRC.Hash(toUpper(RemoveSpecialCharacters(File.ReadAllText(e.FullPath)))));
+            keys.Add(CRC.Hash(toUpper(RemoveSpecialCharacters(File.ReadAllText(e.FullPath)))));
 
 
             Directory.CreateDirectory(DestinationFolder);

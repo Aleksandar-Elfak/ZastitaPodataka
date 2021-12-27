@@ -31,7 +31,7 @@ namespace WpfApp2
         string DestinationDecFolder;
         string WatchedFolder2;
         string KeysLocation2;
-        uint[] IV = {0xFFFFFFFF, 0xFFFFFFFF};
+        uint[] IV = null;
         public XTEAWindow()
         {
 
@@ -127,6 +127,8 @@ namespace WpfApp2
 
             string file = openFileDialog.FileName.Split("\\").Last();
 
+            
+
             XTEA = new XTEA();
             string enc = XTEA.Encrypt(Plaintext.Text, KeyBox.Text, uint.Parse(Rounds.Text), IV);
             Ciphertext.Text = enc;
@@ -138,8 +140,10 @@ namespace WpfApp2
             keys.Add(KeyBox.Text);
             keys.Add(Rounds.Text);
 
-            if (CRCbox.IsChecked == true)
-                keys.Add(CRC.Hash(Plaintext.Text));
+            keys.Add(CRC.Hash(Plaintext.Text));
+
+            if (IV != null)
+                keys.Add(IV[0].ToString("X") + IV[1].ToString("X")); 
 
             SaveKeys(file, keys);
             File.WriteAllText(DestinationFolder + "\\" + file, enc);
@@ -161,8 +165,19 @@ namespace WpfApp2
             }
             string [] keys = File.ReadAllLines(KeysLocation2 + "\\" + file);
 
+            uint[] vector;
+            if (keys.Length == 4)
+            {
+                vector = new uint[2];
+                vector[0] = uint.Parse(keys[3].Substring(0, 8), System.Globalization.NumberStyles.HexNumber);
+                vector[1] = uint.Parse(keys[3].Substring(8, 8), System.Globalization.NumberStyles.HexNumber);
+            }
+            else
+                vector = null;
+
             XTEA = new XTEA();
-            string dec = XTEA.Decrypt(Plaintext.Text, keys[0], uint.Parse(keys[1]), IV);
+            string dec = XTEA.Decrypt(Plaintext.Text, keys[0], uint.Parse(keys[1]), vector);
+
 
             if (CRCbox.IsChecked == true)
                 if (CRC.Hash(dec) != keys[2])
@@ -251,8 +266,10 @@ namespace WpfApp2
             keys.Add(Wkey);
             keys.Add(Wround);
 
-            if (CRCcheck)
-                keys.Add(CRC.Hash(File.ReadAllText(e.FullPath)));
+            keys.Add(CRC.Hash(File.ReadAllText(e.FullPath)));
+
+            if (IV != null)
+                keys.Add(IV[0].ToString("X") + IV[1].ToString("X"));
 
             SaveKeys(file, keys);
             File.WriteAllText(DestinationFolder + "\\" + file, enc);
@@ -281,20 +298,34 @@ namespace WpfApp2
 
         private void IVector_TextChanged(object sender, TextChangedEventArgs e)
         {
-
-            if (iv.IsMatch(IVector.Text))
+            if (CBCbox.IsChecked == true)
             {
-                IVector.Foreground = Brushes.Black;
-                IV = new uint[2];
-                IV[0] = uint.Parse(IVector.Text.Substring(0, 8), System.Globalization.NumberStyles.HexNumber);
-                IV[1] = uint.Parse(IVector.Text.Substring(8, 8), System.Globalization.NumberStyles.HexNumber);
+                if (iv.IsMatch(IVector.Text))
+                {
+                    IVector.Foreground = Brushes.Black;
+                    IV = new uint[2];
+                    IV[0] = uint.Parse(IVector.Text.Substring(0, 8), System.Globalization.NumberStyles.HexNumber);
+                    IV[1] = uint.Parse(IVector.Text.Substring(8, 8), System.Globalization.NumberStyles.HexNumber);
 
+                }
+                else
+                {
+                    IV = null;
+                    IVector.Foreground = Brushes.Red;
+                }
             }
-            else
-            {
-                IV = null;
-                IVector.Foreground = Brushes.Red;
-            }
+            else IV = null;
+        }
+
+        private void CBCbox_Checked(object sender, RoutedEventArgs e)
+        {
+            IVector.IsEnabled = true;
+        }
+
+        private void CBCbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            IVector.IsEnabled = false;
+            IV = null;
         }
     }
 }
