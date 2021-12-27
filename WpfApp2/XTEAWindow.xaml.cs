@@ -25,11 +25,13 @@ namespace WpfApp2
     {
         XTEA XTEA;
         Regex Numbers = new Regex("^[0-9]*$");
+        Regex iv = new Regex("^[A-F0-9]{16}$");
         FileSystemWatcher watcher;
         string DestinationFolder; 
         string DestinationDecFolder;
         string WatchedFolder2;
         string KeysLocation2;
+        uint[] IV = {0xFFFFFFFF, 0xFFFFFFFF};
         public XTEAWindow()
         {
 
@@ -46,7 +48,7 @@ namespace WpfApp2
 
         public bool checkAll()
         {
-            if (Numbers.IsMatch(Rounds.Text) && KeyBox.Text != "")
+            if (Numbers.IsMatch(Rounds.Text) && KeyBox.Text != "" && iv.IsMatch(IVector.Text))
                 return true;
             return false;
         }
@@ -126,12 +128,20 @@ namespace WpfApp2
             string file = openFileDialog.FileName.Split("\\").Last();
 
             XTEA = new XTEA();
-            string enc = XTEA.Encrypt(Plaintext.Text, KeyBox.Text, uint.Parse(Rounds.Text));
+            string enc = XTEA.Encrypt(Plaintext.Text, KeyBox.Text, uint.Parse(Rounds.Text), IV);
             Ciphertext.Text = enc;
 
             Directory.CreateDirectory(DestinationFolder);
             Directory.CreateDirectory(KeysLocation2);
-            SaveKeys(KeyBox.Text, Rounds.Text, file);
+            List<string> keys = new List<string>();
+
+            keys.Add(KeyBox.Text);
+            keys.Add(Rounds.Text);
+
+            if (CRCbox.IsChecked == true)
+                keys.Add(CRC.Hash(Plaintext.Text));
+
+            SaveKeys(file, keys);
             File.WriteAllText(DestinationFolder + "\\" + file, enc);
         }
         private void Decrypt_Click(object sender, RoutedEventArgs e)
@@ -152,7 +162,13 @@ namespace WpfApp2
             string [] keys = File.ReadAllLines(KeysLocation2 + "\\" + file);
 
             XTEA = new XTEA();
-            string dec = XTEA.Decrypt(Plaintext.Text, keys[0], uint.Parse(keys[1]));
+            string dec = XTEA.Decrypt(Plaintext.Text, keys[0], uint.Parse(keys[1]), IV);
+
+            if (CRCbox.IsChecked == true)
+                if (CRC.Hash(dec) != keys[2])
+                    MessageBox.Show("CRC hash does not match.");
+            
+
             Ciphertext.Text = dec;
 
             Directory.CreateDirectory(DestinationDecFolder);
@@ -172,17 +188,21 @@ namespace WpfApp2
             return sb.ToString();
         }
 
-        private void SaveKeys(string rotor, string ringsettings, string file)
+        private void SaveKeys(string file, List<string> keys)
         {
             using (StreamWriter writetext = new StreamWriter(KeysLocation2 + "\\" + file))
             {
-                writetext.WriteLine(rotor);
-                writetext.WriteLine(ringsettings);
+                foreach (string key in keys)
+                {
+                    writetext.WriteLine(key);
+
+                }
             }
         }
 
         string Wround;
         string Wkey;
+        bool CRCcheck;
 
         private void FileSystemWatcherToggle_Checked(object sender, RoutedEventArgs e)
         {
@@ -202,6 +222,8 @@ namespace WpfApp2
             watcher = new FileSystemWatcher(WatchedFolder2);
             watcher.Created += WatcherEncrypt;
             watcher.EnableRaisingEvents = true;
+            CRCbox.IsEnabled = false;
+            CBCbox.IsEnabled = false;
         }
 
         private void FileSystemWatcherToggle_Unchecked(object sender, RoutedEventArgs e)
@@ -213,17 +235,26 @@ namespace WpfApp2
             Encrypt.IsEnabled = true;
             Decrypt.IsEnabled = true;
             WatchedFolder.IsEnabled = true;
+            CRCbox.IsEnabled = true;
+            CBCbox.IsEnabled = true;
         }
 
         private void WatcherEncrypt(object sender, FileSystemEventArgs e)
         {
             string file = e.Name;
             XTEA = new XTEA();
-            string enc = XTEA.Encrypt(File.ReadAllText(e.FullPath), Wkey, uint.Parse(Wround));
+            string enc = XTEA.Encrypt(File.ReadAllText(e.FullPath), Wkey, uint.Parse(Wround), IV);
 
             Directory.CreateDirectory(DestinationFolder);
             Directory.CreateDirectory(KeysLocation2);
-            SaveKeys( Wkey, Wround, file);
+            List<string> keys = new List<string>();
+            keys.Add(Wkey);
+            keys.Add(Wround);
+
+            if (CRCcheck)
+                keys.Add(CRC.Hash(File.ReadAllText(e.FullPath)));
+
+            SaveKeys(file, keys);
             File.WriteAllText(DestinationFolder + "\\" + file, enc);
         }
 
@@ -236,6 +267,34 @@ namespace WpfApp2
             }
             else
                 Rounds.Foreground = Brushes.Red;
+        }
+
+        private void CRCbox_Checked(object sender, RoutedEventArgs e)
+        {
+            CRCcheck = true;
+        }
+
+        private void CRCbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            CRCcheck = false;
+        }
+
+        private void IVector_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+            if (iv.IsMatch(IVector.Text))
+            {
+                IVector.Foreground = Brushes.Black;
+                IV = new uint[2];
+                IV[0] = uint.Parse(IVector.Text.Substring(0, 8), System.Globalization.NumberStyles.HexNumber);
+                IV[1] = uint.Parse(IVector.Text.Substring(8, 8), System.Globalization.NumberStyles.HexNumber);
+
+            }
+            else
+            {
+                IV = null;
+                IVector.Foreground = Brushes.Red;
+            }
         }
     }
 }

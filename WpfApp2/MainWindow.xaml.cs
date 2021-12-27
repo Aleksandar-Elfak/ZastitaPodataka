@@ -178,9 +178,17 @@ namespace WpfApp2
             string enc = enigma.EncryptString(Plaintext.Text);
             Ciphertext.Text = enc;
 
+            List<string> keys = new List<string>();
+            keys.Add(Rotors.Text);
+            keys.Add(RingSettings.Text);
+            keys.Add(Wplug);
+            keys.Add(KeySettings.Text);
+            if(CRCbox.IsChecked == true)
+                keys.Add(CRC.Hash(toUpper(Plaintext.Text)));
+
             Directory.CreateDirectory(DestinationFolder);
             Directory.CreateDirectory(KeysLocation2);
-            SaveKeys(Rotors.Text, RingSettings.Text, Wplug, KeySettings.Text, file);
+            SaveKeys(file, keys);
             File.WriteAllText(DestinationFolder + "\\" + file, enc);
         }
         private void Decrypt_Click(object sender, RoutedEventArgs e)
@@ -204,6 +212,10 @@ namespace WpfApp2
             string dec = enigma.EncryptString(Plaintext.Text);
             Ciphertext.Text = dec;
 
+            if (CRCbox.IsChecked == true)
+                if (keys[4] != CRC.Hash(dec))
+                    MessageBox.Show("CRC hash does not match.");
+
             Directory.CreateDirectory(DestinationDecFolder);
             File.WriteAllText(DestinationDecFolder + "\\" + file, dec);
         }
@@ -221,21 +233,30 @@ namespace WpfApp2
             return sb.ToString();
         }
 
-        private void SaveKeys(string rotor, string ringsettings, string plugboard, string keysettings, string file)
+        private string toUpper(string s)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            foreach (char c in s)
+            {
+                stringBuilder.Append(char.ToUpper(c));
+            }
+            return stringBuilder.ToString();
+        }
+
+        private void SaveKeys(string file, List<string> keys)
         {
             using (StreamWriter writetext = new StreamWriter(KeysLocation2 + "\\" + file))
-            {
-                writetext.WriteLine(rotor);
-                writetext.WriteLine(ringsettings);
-                writetext.WriteLine(plugboard);
-                writetext.WriteLine(keysettings);
-            }
+                foreach (string key in keys)
+                    writetext.WriteLine(key);
+
         }
 
         string Wrotors;
         string Wring;
         string Wkey;
         string Wplug;
+        bool crcCheck;
 
         private void FileSystemWatcherToggle_Checked(object sender, RoutedEventArgs e)
         {
@@ -261,6 +282,7 @@ namespace WpfApp2
             watcher = new FileSystemWatcher(WatchedFolder2);
             watcher.Created += WatcherEncrypt;
             watcher.EnableRaisingEvents = true;
+            CRCbox.IsEnabled = false;
         }
 
         private void FileSystemWatcherToggle_Unchecked(object sender, RoutedEventArgs e)
@@ -275,6 +297,7 @@ namespace WpfApp2
             Encrypt.IsEnabled = true;
             Decrypt.IsEnabled = true;
             WatchedFolder.IsEnabled = true;
+            CRCbox.IsEnabled = true;
         }
 
         private void WatcherEncrypt(object sender, FileSystemEventArgs e)
@@ -283,11 +306,29 @@ namespace WpfApp2
             enigma = new Enigma(Wrotors, Wring, Wplug, Wkey);
             string enc = enigma.EncryptString(RemoveSpecialCharacters(File.ReadAllText(e.FullPath)));
 
+            List<string> keys = new List<string>();
+            keys.Add(Wrotors);
+            keys.Add(Wring);
+            keys.Add(Wplug);
+            keys.Add(Wkey);
+            if (crcCheck)
+                keys.Add(CRC.Hash(toUpper(RemoveSpecialCharacters(File.ReadAllText(e.FullPath)))));
+
+
             Directory.CreateDirectory(DestinationFolder);
             Directory.CreateDirectory(KeysLocation2);
-            SaveKeys(Wrotors, Wring, Wplug, Wkey, file);
+            SaveKeys(file, keys);
             File.WriteAllText(DestinationFolder + "\\" + file, enc);
         }
 
+        private void CRCbox_Checked(object sender, RoutedEventArgs e)
+        {
+            crcCheck = true;
+        }
+
+        private void CRCbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            crcCheck = false;
+        }
     }
 }

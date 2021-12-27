@@ -1,0 +1,10 @@
+enigma:
+	plug board setting: parovi svih slova u abecedi
+	key settings: [A-C]{3}
+	ring setting: [A-C]{3}
+	rotors: [A-C]{3}
+
+XTEA:
+	key: bilo sta
+	Rounds: int
+	Initialization vector: hex vrednost od 16 cifre [A-F0-9]{16}

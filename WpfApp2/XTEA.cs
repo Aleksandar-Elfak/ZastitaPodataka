@@ -7,11 +7,20 @@ namespace WpfApp2
 
 	public class XTEA
 	{
+		private uint[] IV = null;
 
-		public string Encrypt(string data, string key, uint Rounds)
+		public string Encrypt(string data, string key, uint Rounds, uint[] iv = null)
 		{
 			var dataBytes = Encoding.Unicode.GetBytes(data);
 			var keyBytes = Encoding.Unicode.GetBytes(key);
+			if (iv != null)
+			{
+				IV = new uint[iv.Length];
+				IV[0] = iv[0];
+				IV[1] = iv[1];
+			}
+			else
+				IV = null;
 
 			var keyBuffer = CreateKey(keyBytes);
 			var blockBuffer = new uint[2];
@@ -37,10 +46,20 @@ namespace WpfApp2
 			return Convert.ToBase64String(result);
 		}
 
-		public string Decrypt(string data, string key, uint Rounds)
+		public string Decrypt(string data, string key, uint Rounds, uint[] iv = null)
 		{
 			var dataBytes = Convert.FromBase64String(data);
 			var keyBytes = Encoding.Unicode.GetBytes(key);
+
+			if (iv != null)
+			{
+				IV = new uint[iv.Length];
+				IV[0] = iv[0];
+				IV[1] = iv[1];
+			}
+			else
+				IV = null;
+
 			if (dataBytes.Length % 8 != 0) throw new ArgumentException("Encrypted data length must be a multiple of 8 bytes.");
 			var keyBuffer = CreateKey(keyBytes);
 			var blockBuffer = new uint[2];
@@ -92,25 +111,52 @@ namespace WpfApp2
 		private void Encrypt(uint rounds, uint[] v, uint[] key)
 		{
 			uint v0 = v[0], v1 = v[1], sum = 0, delta = 0x9E3779B9;
+
+			if(IV != null)
+            {
+				v0 ^= IV[0];
+				v1 ^= IV[1];
+            }
+
 			for (uint i = 0; i < rounds; i++)
 			{
 				v0 += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + key[sum & 3]);
 				sum += delta;
 				v1 += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + key[(sum >> 11) & 3]);
 			}
+
 			v[0] = v0;
 			v[1] = v1;
+
+			if (IV != null)
+			{
+				IV[0] = v0;
+				IV[1] = v1;
+			}
 		}
 
 		private void Decrypt(uint rounds, uint[] v, uint[] key)
 		{
 			uint v0 = v[0], v1 = v[1], delta = 0x9E3779B9, sum = delta * rounds;
+
+			
+
 			for (uint i = 0; i < rounds; i++)
 			{
 				v1 -= (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + key[(sum >> 11) & 3]);
 				sum -= delta;
 				v0 -= (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + key[sum & 3]);
 			}
+
+			if (IV != null)
+			{
+				v0 ^= IV[0];
+				v1 ^= IV[1];
+
+				IV[0] = v[0];
+				IV[1] = v[1];
+			}
+
 			v[0] = v0;
 			v[1] = v1;
 		}

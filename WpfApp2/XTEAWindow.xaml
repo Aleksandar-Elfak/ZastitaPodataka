@@ -12,21 +12,25 @@
         <TextBox x:Name="Ciphertext" Margin="554,244,30,10" TextWrapping="Wrap" Text="TextBox" IsReadOnly="True" />
         <Button x:Name="OpenFileBtn" Content="Open document" HorizontalAlignment="Left" Margin="8,0,0,10" Width="111" IsCancel="True" Click="OpenFileBtn_Click" Height="27" VerticalAlignment="Bottom"/>
         <Button x:Name="Encrypt" Content="Encrypt" HorizontalAlignment="Left" Margin="260,0,0,10" Width="110" Height="27" VerticalAlignment="Bottom" Click="Encrypt_Click" Cursor=""/>
-        <Button x:Name="ClearBtn" Content="Clear" HorizontalAlignment="Left" Margin="130,0,0,10" Width="112" RenderTransformOrigin="0.344,1.114" Click="Button_Click" Height="27" VerticalAlignment="Bottom"/>
-        <Label Content="Key:" HorizontalAlignment="Left" Margin="80,0,0,432" VerticalAlignment="Bottom"/>
+        <Button x:Name="ClearBtn" Content="Clear" HorizontalAlignment="Left" Margin="130,0,0,10" Width="112" Click="Button_Click" Height="27" VerticalAlignment="Bottom"/>
+        <Label Content="Key:" HorizontalAlignment="Left" Margin="80,26,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="KeyBox" HorizontalAlignment="Left" Margin="130,29,0,0" Text="YRUHQSLDPXNGOKMIEBFZCWVJAT" TextWrapping="Wrap"  Height="23" VerticalAlignment="Top" Width="259" TextChanged="KeyBox_TextChanged"/>
-        <TextBox x:Name="WatchedFolder" HorizontalAlignment="Left" Margin="130,195,0,0" Text="C:\Users\Aca\Desktop\ZastitaInformacija" TextWrapping="Wrap"  Height="23" VerticalAlignment="Top" Width="416" TextChanged="WatchedFolder_TextChanged"/>
-        <Label x:Name="Watchedlbl" Content="Watched folder:" HorizontalAlignment="Left" Margin="18,192,0,0" VerticalAlignment="Top"/>
-        <CheckBox x:Name="FileSystemWatcherToggle" Content="File System Watcher" HorizontalAlignment="Left" Margin="23,0,0,171" VerticalAlignment="Bottom" RenderTransformOrigin="0.55,0.632" Checked="FileSystemWatcherToggle_Checked" Unchecked="FileSystemWatcherToggle_Unchecked"/>
-        <TextBox x:Name="Destination" HorizontalAlignment="Left" Margin="130,115,0,0" Text="C:\Users\Aca\Desktop\Encrypted" TextWrapping="Wrap" Width="416" TextChanged="Destination_TextChanged" Height="23" VerticalAlignment="Top"/>
-        <Label Content="Encryption folder:" HorizontalAlignment="Left" Margin="10,112,0,0" Height="26" VerticalAlignment="Top"/>
+        <TextBox x:Name="WatchedFolder" HorizontalAlignment="Left" Margin="130,207,0,0" Text="C:\Users\Aca\Desktop\ZastitaInformacija" TextWrapping="Wrap"  Height="23" VerticalAlignment="Top" Width="416" TextChanged="WatchedFolder_TextChanged"/>
+        <Label x:Name="Watchedlbl" Content="Watched folder:" HorizontalAlignment="Left" Margin="18,204,0,0" VerticalAlignment="Top"/>
+        <CheckBox x:Name="FileSystemWatcherToggle" Content="File System Watcher" HorizontalAlignment="Left" Margin="23,298,0,171" Checked="FileSystemWatcherToggle_Checked" Unchecked="FileSystemWatcherToggle_Unchecked"/>
+        <TextBox x:Name="Destination" HorizontalAlignment="Left" Margin="130,127,0,0" Text="C:\Users\Aca\Desktop\Encrypted" TextWrapping="Wrap" Width="416" TextChanged="Destination_TextChanged" Height="23" VerticalAlignment="Top"/>
+        <Label Content="Encryption folder:" HorizontalAlignment="Left" Margin="10,124,0,0" Height="26" VerticalAlignment="Top"/>
         <Button x:Name="Decrypt" Content="Decrypt" HorizontalAlignment="Left" Margin="384,0,0,10" Width="110" Height="27" VerticalAlignment="Bottom" Click="Decrypt_Click"/>
-        <Label x:Name="Keyslbl" Content="Keys location:" HorizontalAlignment="Left" Margin="23,233,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="KeysLocation" HorizontalAlignment="Left" Margin="130,234,0,0" Text="C:\Users\Aca\Desktop\ZastitaInformacija\Kljucevi.txt" TextWrapping="Wrap" Width="416" TextChanged="KeysLocation_TextChanged" Height="23" VerticalAlignment="Top"/>
-        <TextBox x:Name="DestinationDec" HorizontalAlignment="Left" Margin="130,157,0,0" Text="C:\Users\Aca\Desktop\Encrypted" TextWrapping="Wrap" Width="416" TextChanged="DestinationDec_TextChanged" Height="23" VerticalAlignment="Top"/>
-        <Label Content="Descryption folder:" HorizontalAlignment="Left" Margin="10,154,0,0" VerticalAlignment="Top"/>
-        <Label Content="Rounds:" HorizontalAlignment="Left" Margin="59,70,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="Rounds" HorizontalAlignment="Left" Margin="130,74,0,0" Text="TextBox" TextWrapping="Wrap" VerticalAlignment="Top" Width="196" TextChanged="Rounds_TextChanged"/>
+        <Label x:Name="Keyslbl" Content="Keys location:" HorizontalAlignment="Left" Margin="23,245,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="KeysLocation" HorizontalAlignment="Left" Margin="130,246,0,0" Text="C:\Users\Aca\Desktop\ZastitaInformacija\Kljucevi.txt" TextWrapping="Wrap" Width="416" TextChanged="KeysLocation_TextChanged" Height="23" VerticalAlignment="Top"/>
+        <TextBox x:Name="DestinationDec" HorizontalAlignment="Left" Margin="130,169,0,0" Text="C:\Users\Aca\Desktop\Encrypted" TextWrapping="Wrap" Width="416" TextChanged="DestinationDec_TextChanged" Height="23" VerticalAlignment="Top"/>
+        <Label Content="Descryption folder:" HorizontalAlignment="Left" Margin="10,166,0,0" VerticalAlignment="Top"/>
+        <Label Content="Rounds:" HorizontalAlignment="Left" Margin="59,62,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="Rounds" HorizontalAlignment="Left" Margin="130,66,0,0" Text="TextBox" TextWrapping="Wrap" VerticalAlignment="Top" Width="196" TextChanged="Rounds_TextChanged"/>
+        <CheckBox x:Name="CRCbox" Content="CRC" HorizontalAlignment="Left" Margin="23,334,0,0" VerticalAlignment="Top" Checked="CRCbox_Checked" Unchecked="CRCbox_Unchecked"/>
+        <CheckBox x:Name="CBCbox" Content="CBC" HorizontalAlignment="Left" Margin="24,369,0,0" VerticalAlignment="Top"/>
+        <Label Content="Initialization vector:" HorizontalAlignment="Left" Margin="5,93,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="IVector" HorizontalAlignment="Left" Margin="130,97,0,0" TextWrapping="Wrap" Text="FFFFFFFFFFFFFFFF" VerticalAlignment="Top" Width="196" TextChanged="IVector_TextChanged"/>
 
     </Grid>
 </Window>
