@@ -143,7 +143,7 @@ namespace WpfApp2
             keys.Add(CRC.Hash(Plaintext.Text));
 
             if (IV != null)
-                keys.Add(IV[0].ToString("X") + IV[1].ToString("X")); 
+                keys.Add(IV[0].ToString("X2") + IV[1].ToString("X2")); 
 
             SaveKeys(file, keys);
             File.WriteAllText(DestinationFolder + "\\" + file, enc);
@@ -269,7 +269,7 @@ namespace WpfApp2
             keys.Add(CRC.Hash(File.ReadAllText(e.FullPath)));
 
             if (IV != null)
-                keys.Add(IV[0].ToString("X") + IV[1].ToString("X"));
+                keys.Add(IV[0].ToString("X2") + IV[1].ToString("X2"));
 
             SaveKeys(file, keys);
             File.WriteAllText(DestinationFolder + "\\" + file, enc);
